@@ -1,45 +1,43 @@
 #!/bin/bash
-# ejecutar.sh
-# This script prepares the environment for running the seam carving command.
-# It will check for Python3 and pip, create a virtual environment,
-# install necessary dependencies, and set the proper permissions.
+# ejecuta.sh
+# Este script prepara el entorno para ejecutar el programa de búsqueda con retroceso.
+# Verifica la existencia de Python3 y pip3, crea un entorno virtual,
+# instala las dependencias necesarias y establece los permisos adecuados.
 
-# Check if Python3 is installed
+# Verificar que Python3 está instalado
 if ! command -v python3 >/dev/null 2>&1; then
-    echo "Error: Python3 is not installed. Please install Python3 and try again."
+    echo "Error: Python3 no está instalado. Por favor, instale Python3 e intente nuevamente."
     exit 1
 fi
 
-# Check if pip3 is installed
+# Verificar que pip3 está instalado
 if ! command -v pip3 >/dev/null 2>&1; then
-    echo "Error: pip3 is not installed. Please install pip3 and try again."
+    echo "Error: pip3 no está instalado. Por favor, instale pip3 e intente nuevamente."
     exit 1
 fi
 
-# Create a virtual environment if it doesn't exist
+# Crear el entorno virtual si no existe
 if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
+    echo "Creando entorno virtual..."
     python3 -m venv venv
 fi
 
-# Activate the virtual environment
+# Activar el entorno virtual
 source venv/bin/activate
 
-# Upgrade pip to the latest version
-echo "Upgrading pip..."
+# Actualizar pip a la última versión
+echo "Actualizando pip..."
 pip install --upgrade pip
 
-# Install the required Python packages
-echo "Installing required packages: numpy, matplotlib..."
-pip install numpy matplotlib
+# Instalar los paquetes necesarios
+echo "Instalando paquetes necesarios: numpy..."
+pip install numpy
 
-# Ensure the main script is executable (assuming it's named seam_carving.py)
-chmod +x seam_carving.py
+# Asegurar que el script principal sea ejecutable (se asume que se llama retroceso.py)
+chmod +x retroceso.py
 
-echo "Environment is ready!"
-echo "You can now run the command:"
-echo "  ./seam_carving.py <num_seams> <image_file> <output_directory>"
-echo "For example:"
-echo "  ./seam_carving.py 50 photo.png ./"
-
-# End of script
+echo "¡El entorno está listo!"
+echo "Ahora puede ejecutar el programa con el siguiente comando:"
+echo "  python retroceso.py"
+echo "O directamente:"
+echo "  ./retroceso.py"
