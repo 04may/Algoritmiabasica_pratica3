@@ -18,7 +18,7 @@ def open_file(path):
     tests = []
     with open(path, "r") as f:
         lines = f.readlines()
-        print(lines)
+        # print(lines)
         for i in range(0, len(lines), 2):
             m, n = lines[i].split()
             size = [int(m), int(n)]
@@ -192,15 +192,15 @@ def compare_solutions(list_one, list_two):
 
 def final_program(input_path, output_path):
     """
-      - Opens the input file
-      - Calculates the possible paths according to the constraints
-      - Writes the number of valid paths and the execution time to the output file
+    - Opens the input file
+    - Calculates the possible paths according to the constraints
+    - Writes the number of valid paths and the execution time to the output file
     """
     data = open_file(input_path)
     # Clear output file
     with open(output_path, "w") as f:
         f.close()
-    print("data:", data)
+    # print("data:", data)
     for i in range(len(data)):
         start_case = time.time()
         size = data[i][0]
@@ -227,16 +227,16 @@ def final_program(input_path, output_path):
         num_sol = len(solution)
         end_case = time.time()
         execution_time = end_case - start_case
-        print("return", num_sol, solution)
+        # print("return", num_sol, solution)
         with open(output_path, "a") as f:
             f.write(f"{num_sol} {execution_time:.6f}\n")
 
 
 if __name__ == "__main__":
     input_path = "test.txt"  # file at project root
-    output_path = "resultats.txt"  # file at project root
+    output_path = "results.txt"  # file at project root
     total_start = time.time()
     final_program(input_path, output_path)
     total_end = time.time()
     total_exec_time = total_end - total_start
-    print(f"Total execution time: {total_exec_time:.6f} seconds")
+    # print(f"Total execution time: {total_exec_time:.6f} seconds")

@@ -1,290 +1,243 @@
+#!/usr/bin/env python3
+"""
+Practice 3: Backtracking Search
+"""
+
 import numpy as np
+import time
 
 
 def open_file(path):
-    test = []
-
+    """
+    Opens the file at 'path' and reads the test cases.
+    Each test case consists of two lines:
+      - The first line contains two integers (m, n) for the grid dimensions.
+      - The second line contains the control point coordinates.
+    Returns a list where each element is a list starting with the grid size followed by the coordinates.
+    """
+    tests = []
     with open(path, "r") as f:
-        lignes = f.readlines()
-        for i in range(0, len(lignes), 2):
-            m, n = lignes[i].split()
-            taille = [int(m), int(n)]
-
-            figures = lignes[i + 1].split()
-            liste = [taille]
+        lines = f.readlines()
+        for i in range(0, len(lines), 2):
+            m, n = lines[i].split()
+            size = [int(m), int(n)]
+            figures = lines[i + 1].split()
+            case_list = [size]
             for i in range(0, len(figures), 2):
-                coordonnees = [int(figures[i]) + 1, int(figures[i + 1]) + 1]
-                liste.append(coordonnees)
-
-            test.append(liste)
-
-        return test
+                coordinates = [int(figures[i]) + 1, int(figures[i + 1]) + 1]
+                case_list.append(coordinates)
+            tests.append(case_list)
+        return tests
 
 
-def checkpoints(taille):
-    etapes = []
-    for i in range(1, 4, 1):
-        etapes.append(i * taille[0] * taille[1] // 4)
-    return etapes
+def get_checkpoints(size):
+    """
+    Determines the control steps for a grid of dimensions [m, n].
+    Returns a list of three steps: floor(m*n/4), floor(2*m*n/4) and floor(3*m*n/4).
+    """
+    steps = []
+    for i in range(1, 4):
+        steps.append(i * size[0] * size[1] // 4)
+    return steps
 
 
-def new_matrice(taille):
-    matrice = np.empty((taille[0] + 2, taille[1] + 2))
-    for i in range(0, taille[0] + 2, 1):
-        for j in range(0, taille[1] + 2, 1):
-            if (i == 0 or j == 0 or i == taille[0] + 1 or j == taille[1] + 1) or (
+def new_matrix(size):
+    """
+    Creates a matrix of dimensions (m+2) x (n+2) with a border of 1 and the interior set to 0,
+    except that cell (1,1) is initialized to 1.
+    """
+    matrix = np.empty((size[0] + 2, size[1] + 2))
+    for i in range(0, size[0] + 2):
+        for j in range(0, size[1] + 2):
+            if (i == 0 or j == 0 or i == size[0] + 1 or j == size[1] + 1) or (
                 i == 1 and j == 1
             ):
-                matrice[i][j] = 1
+                matrix[i][j] = 1
             else:
-                matrice[i][j] = 0
-    return matrice
+                matrix[i][j] = 0
+    return matrix
 
 
-def verif_manhatan_dist(coord, point, etape, etape_point):
-    dist = abs(coord[0] - int(point[0])) + abs(coord[1] - int(point[1]))
-    # print("dist", dist)
-    # print("nb_etapes-restantes", int(etape_point)-etape)
-    if dist > (int(etape_point) - etape):
+def verify_manhattan_dist(coord, target, step, step_target):
+    """
+    Checks if the Manhattan distance between 'coord' and 'target' is less than or equal to (step_target - step).
+    Returns True if it is, otherwise False.
+    """
+    dist = abs(coord[0] - int(target[0])) + abs(coord[1] - int(target[1]))
+    if dist > (int(step_target) - step):
         return False
     else:
         return True
 
 
-def verification_entoure(matrice):
-    ##on regarde en fonction de la case 1, il doit toujours avoir la possibilité de ralier la case un en plus
-
-    first = True
-    visite = np.zeros_like(matrice)
-    voisins = [(1, 0), (0, -1), (0, 1), (-1, 0)]
-    nouveaux_voisins = []
-
-    for i, j in voisins:
-        case_x = 1 + i
-        case_y = 1 + j
-        if matrice[case_x][case_y] == 0:
-            nouveaux_voisins.append((case_x, case_y))
-            visite[case_x][case_y] = 2
-    ##print("nouveaux_voisins_premiere_fois", nouveaux_voisins)
-
-    if not nouveaux_voisins:
+def check_connectivity(matrix):
+    """
+    Checks that from cell (1,1), all accessible cells (with value 0) are reachable.
+    Returns True if connectivity is ensured, otherwise False.
+    """
+    visited = np.zeros_like(matrix)
+    neighbors = [(1, 0), (0, -1), (0, 1), (-1, 0)]
+    new_neighbors = []
+    for i, j in neighbors:
+        x = 1 + i
+        y = 1 + j
+        if matrix[x][y] == 0:
+            new_neighbors.append((x, y))
+            visited[x][y] = 2
+    if not new_neighbors:
         return False
-
-    while nouveaux_voisins:
-        x, y = nouveaux_voisins.pop(0)
-        for i, j in voisins:
-            case_x = x + i
-            case_y = y + j
-            if matrice[case_x, case_y] == 0 and visite[case_x, case_y] != 2:
-                visite[case_x, case_y] = 2
-                nouveaux_voisins.append((case_x, case_y))
-        ##print("nouveaux_voisins", nouveaux_voisins)
-
-    ##print(matrice)
-    ##print("visite",visite)
-    for i in range(1, matrice.shape[0] - 1, 1):
-        for j in range(1, matrice.shape[1] - 1):
-            if matrice[i][j] == 0:
-                if visite[i][j] != 2:
+    while new_neighbors:
+        x, y = new_neighbors.pop(0)
+        for i, j in neighbors:
+            new_x = x + i
+            new_y = y + j
+            if matrix[new_x, new_y] == 0 and visited[new_x, new_y] != 2:
+                visited[new_x, new_y] = 2
+                new_neighbors.append((new_x, new_y))
+    for i in range(1, matrix.shape[0] - 1):
+        for j in range(1, matrix.shape[1] - 1):
+            if matrix[i][j] == 0:
+                if visited[i][j] != 2:
                     return False
-
     return True
 
 
-def creation_matrice_marquee(matrice, coor):
-    new_matrice = np.empty((matrice.shape[0], matrice.shape[1]))
-    for i in range(0, matrice.shape[0], 1):
-        for j in range(0, matrice.shape[1], 1):
-            if i == coor[0] and j == coor[1]:
-                new_matrice[i][j] = 1
+def create_highlighted_matrix(matrix, coord):
+    """
+    Creates a new matrix from 'matrix' by marking the cell at 'coord' with 1.
+    """
+    new_mat = np.empty((matrix.shape[0], matrix.shape[1]))
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if i == coord[0] and j == coord[1]:
+                new_mat[i][j] = 1
             else:
-                new_matrice[i][j] = matrice[i][j]
-    return new_matrice
+                new_mat[i][j] = matrix[i][j]
+    return new_mat
 
 
-def parcourir_voisins(liste_solution, liste_retour, etape, checkpoint, etape_actuelle):
-    voisins = [(1, 0), (0, -1), (0, 1), (-1, 0)]
-    nouvelle_liste_solutions = []
-    # print("solution_d'entree_dans_parcourir_voisin",liste_solution)
-
-    # voir comment mettre à jour
-    coordonnees = liste_solution[len(liste_solution) - 2]
-    # print("coord",coordonnees)
-    matrice = liste_solution[len(liste_solution) - 1]
-    ##print("matrice_au_debut", matrice)
-
-    for i in range(0, len(voisins)):
-        case_x = voisins[i][0] + coordonnees[0]
-        ##print("x:",case_x)
-
-        case_y = voisins[i][1] + coordonnees[1]
-        ##print("y:",case_y)
-        if matrice[case_x][case_y] == 0:
-            if case_x == int(etape[0]) and case_y == int(etape[1]):
-                if etape_actuelle == checkpoint:
-                    # print("je suis au checkpoint")
-                    new_matrice = creation_matrice_marquee(matrice, (case_x, case_y))
-                    ##print(new_matrice)
-
-                    if verification_entoure(new_matrice):
-                        ##print("il n'y a pas de point bloqué")
-                        ##print("avant",liste_solution)
-                        liste_nouvelle_solution = liste_solution.copy()
-                        liste_nouvelle_solution.pop(len(liste_solution) - 1)
-                        liste_nouvelle_solution.append((case_x, case_y))
-                        liste_nouvelle_solution.append(new_matrice)
-                        ##print("apres",liste_nouvelle_solution)
-                        liste_retour.append(liste_nouvelle_solution)
-                    # else:
-                    ##print("je suis bloqué")
-
-                # else:
-                ##print("je suis trop tot au checkpoint")
-
+def explore_neighbors(solution, return_list, target, checkpoint, current_step):
+    """
+    Explores the neighbors of a partial solution to generate new solutions.
+    """
+    neighbors = [(1, 0), (0, -1), (0, 1), (-1, 0)]
+    current_coord = solution[-2]
+    matrix = solution[-1]
+    for i in range(len(neighbors)):
+        new_x = neighbors[i][0] + current_coord[0]
+        new_y = neighbors[i][1] + current_coord[1]
+        if matrix[new_x][new_y] == 0:
+            if new_x == int(target[0]) and new_y == int(target[1]):
+                if current_step == checkpoint:
+                    new_mat = create_highlighted_matrix(matrix, (new_x, new_y))
+                    if check_connectivity(new_mat):
+                        new_solution = solution.copy()
+                        new_solution.pop()
+                        new_solution.append((new_x, new_y))
+                        new_solution.append(new_mat)
+                        return_list.append(new_solution)
             else:
-                if verif_manhatan_dist(
-                    (case_x, case_y), etape, etape_actuelle, checkpoint
+                if verify_manhattan_dist(
+                    (new_x, new_y), target, current_step, checkpoint
                 ):
-                    new_matrice = creation_matrice_marquee(matrice, (case_x, case_y))
-                    ##print(new_matrice)
-                    ##print("c'est encore possible pour moi")
-
-                    if verification_entoure(matrice):
-                        ##print("il n'y a pas de point bloqué")
-                        ##print("avant",liste_solution)
-                        liste_nouvelle_solution = liste_solution.copy()
-                        liste_nouvelle_solution.pop(len(liste_solution) - 1)
-                        liste_nouvelle_solution.append((case_x, case_y))
-                        liste_nouvelle_solution.append(new_matrice)
-                        ##print("apres",liste_nouvelle_solution)
-                        liste_retour.append(liste_nouvelle_solution)
-                # else:
-                ##print("je suis bloqué")
-
-                # else:
-                ##print("ce n'est plus possible pour moi")
-
-        # else:
-        ##print("la case est déjà parcourue")
-    ##print("fin de voisins: nouvelle_liste",liste_retour)
-
-    return liste_retour
+                    new_mat = create_highlighted_matrix(matrix, (new_x, new_y))
+                    if check_connectivity(matrix):
+                        new_solution = solution.copy()
+                        new_solution.pop()
+                        new_solution.append((new_x, new_y))
+                        new_solution.append(new_mat)
+                        return_list.append(new_solution)
+    return return_list
 
 
-def chemins_possibles(liste_solutions, etapes, checkpoint, parcourir):
-
-    indice = 0
-    # print(" checkpoint, etape", checkpoint[indice],etapes[indice])
-    nouvelle_liste = []
-    if checkpoint[0] == 1:
-        if etapes[0] != [1, 1]:
+def possible_paths(solution_list, targets, checkpoints_val, total_steps):
+    """
+    Generates all possible valid paths (solutions) that satisfy the constraints.
+    """
+    index = 0
+    if checkpoints_val[0] == 1:
+        if targets[0] != [1, 1]:
             return []
         else:
-            etapes.pop(0)
-            checkpoint.pop(0)
-    ##on parcours en nombre d'étape
-    ## quand on arrive au checkpoint on change d'étape à atteindre.
-    for i in range(2, parcourir + 1):
-        # print(checkpoint)
-        # print("i et checkpoint, etape",i, checkpoint[indice],etapes[indice])
-        if i > checkpoint[indice]:
-
-            indice += 1
-        # print("etape_chemins_possibles", i)
-
-        nouvelle_liste = []
-        for solution in liste_solutions:
-            # print("solution", solution)
-            new_sol = parcourir_voisins(
-                solution, nouvelle_liste, etapes[indice], checkpoint[indice], i
+            targets.pop(0)
+            checkpoints_val.pop(0)
+    for i in range(2, total_steps + 1):
+        if i > checkpoints_val[index]:
+            index += 1
+        new_list = []
+        for sol in solution_list:
+            new_sol = explore_neighbors(
+                sol, new_list, targets[index], checkpoints_val[index], i
             )
             if new_sol:
-                nouvelle_liste = new_sol
-        # print("nouvelle liste",nouvelle_liste)
-        if not nouvelle_liste:
+                new_list = new_sol
+        if not new_list:
             return []
-        liste_solutions = nouvelle_liste
-
-        # print("liste_sol_fin_de_chemin",nouvelle_liste)
-
-    return nouvelle_liste
+        solution_list = new_list
+    return new_list
 
 
-def comparaison(liste_un, liste_deux):
+def compare_solutions(list_one, list_two):
+    """
+    Compares two lists of solutions to extract compatible solutions.
+    """
     solutions = []
-
-    for solution_un in liste_un:
-        solution_un_copy = solution_un[:-1]
-        start, end = solution_un_copy[0], solution_un_copy[-1]
-
-        for solution_deux in liste_deux:
-            solution_deux_copy = solution_deux[:-1]
-
-            nouvelle_solution = solution_un_copy.copy()
-            for element in reversed(solution_deux_copy[1:-1]):
-                if element in solution_un_copy:
+    for sol_one in list_one:
+        sol_one_copy = sol_one[:-1]
+        for sol_two in list_two:
+            sol_two_copy = sol_two[:-1]
+            new_sol = sol_one_copy.copy()
+            for element in reversed(sol_two_copy[1:-1]):
+                if element in sol_one_copy:
                     break
-                nouvelle_solution.append(element)
-
+                new_sol.append(element)
             else:
-                solutions.append(nouvelle_solution)
-
+                solutions.append(new_sol)
     return solutions
 
 
-def programme_final(chemin, sortie):
-
-    donnees = open_file(chemin)
-    with open(sortie, "w") as f:
+def final_program(input_path, output_path):
+    """
+    Main program:
+      - Opens the input file
+      - Computes the possible paths according to the constraints
+      - Writes the number of valid solutions and the execution time (in milliseconds)
+        to the output file.
+    """
+    data = open_file(input_path)
+    with open(output_path, "w") as f:
         f.close()
-
-    print("donnees:", donnees)
-    for i in range(len(donnees)):
-
-        taille = donnees[i][0]
-        ##print(taille)
-        matrice = new_matrice(taille)
-        ##print(matrice)
-        parcourir = taille[0] * taille[1]
-
-        etapes = donnees[i][1 : len(donnees[i])]
-        checkpoint = checkpoints(taille)
-
-        ##verifier si elle doit être modifiée
-        liste_solutions = [[(1, 1), matrice]]
-
-        checkpoint_first = checkpoint[0:2]
-        print("checkpoint_first", checkpoint_first)
-        checkpoint_second = [
-            (parcourir - checkpoint[2] + 2),
-            (parcourir - checkpoint[1] + 2),
-        ]
-        print("checkpoint", checkpoint_second)
-        etapes_first = etapes[0:2]
-        etapes_second = [etapes[2], etapes[1]]
-
-        print("sol_first *********************")
-        solution_first = chemins_possibles(
-            liste_solutions, etapes_first, checkpoint_first, checkpoint_first[-1]
-        )
-        print("sol_sec *********************")
-        solution_second = chemins_possibles(
-            liste_solutions, etapes_second, checkpoint_second, checkpoint_second[-1]
-        )
-
-        solution = comparaison(solution_first, solution_second)
-
-        print("********************solution***********************")
-
-        nombre_sol = len(solution)
-
-        print("return", nombre_sol, solution)
-        print("fini****************************")
-        with open(sortie, "a") as f:
-            f.write(f"{nombre_sol} \n")
+    # print("data:", data)
+    for i in range(len(data)):
+        start_time = time.time()
+        size = data[i][0]
+        matrix = new_matrix(size)
+        total_steps = size[0] * size[1]
+        targets = data[i][1:]
+        targets.append((1, 1))
+        checkpoints_val = get_checkpoints(size)
+        checkpoints_val.append(total_steps + 1)
+        solution_list = [[(1, 1), matrix]]
+        if checkpoints_val[0] == 1:
+            if targets[0] != [1, 1]:
+                sol = []
+            else:
+                targets.pop(0)
+                checkpoints_val.pop(0)
+                sol = possible_paths(
+                    solution_list, targets, checkpoints_val, total_steps
+                )
+        else:
+            sol = possible_paths(solution_list, targets, checkpoints_val, total_steps)
+        num_sol = len(sol)
+        end_time = time.time()
+        exec_time = (end_time - start_time) * 1000  # milliseconds
+        # print("return", num_sol, sol)
+        with open(output_path, "a") as f:
+            f.write(f"{num_sol} {exec_time:.6f}\n")
 
 
 if __name__ == "__main__":
-    chemin = "test.txt"
-    sortie = "resultats2.txt"
-    programme_final(chemin, sortie)
+    input_path = "test.txt"
+    output_path = "results_man_in_the_middle.txt"
+    final_program(input_path, output_path)
