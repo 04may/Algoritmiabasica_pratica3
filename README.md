@@ -1,42 +1,51 @@
-# 📌 Practica 3: Busqueda con retroceso
+# 📌 Practica 3: Búsqueda con retroceso
 
 ## 📌 1. Presentación de la práctica
-Este proyecto implementa una **reducción de costuras (seam carving)** para el procesamiento de imágenes.  
-El objetivo es **reducir el ancho de las imágenes** mediante la eliminación iterativa de la costura de menor energía utilizando **programación dinámica**.
+Este proyecto implementa un **algoritmo de búsqueda con retroceso** (backtracking) para contar el número de recorridos válidos que puede realizar un robot (YuMi) en una cuadrícula con restricciones específicas.  
+El robot:
+- Empieza en la esquina inferior izquierda de la cuadrícula (coordenadas \((0, 0)\)).
+- Debe visitar cada cuadrado exactamente una vez (camino hamiltoniano).
+- Debe pasar por tres puntos de control en pasos específicos: \(\lfloor m \times n / 4 \rfloor\), \(\lfloor 2 \times m \times n / 4 \rfloor\), \(\lfloor 3 \times m \times n / 4 \rfloor\).
+- Finaliza en la casilla \((0, 1)\).
+
+Este enfoque utiliza la técnica de **backtracking** para generar y filtrar recorridos posibles en la cuadrícula.
 
 ## 📌 2. Características
-* Reducción del ancho de la imagen mediante la eliminación de costuras.
-* Cálculo de la energía de cada píxel basado en la suma de los valores RGB.
-* Uso de programación dinámica para determinar la costura (camino) de menor energía.
-* Visualización de imágenes intermedias y finales.
-* Soporte para eliminar múltiples costuras de forma iterativa.
-
+* **Recorrido Hamiltoniano** con pasos de control definidos.
+* **Búsqueda con retroceso** (backtracking) para explorar todas las posibilidades.
+* **Filtrado (pruning)** mediante distancias de Manhattan y verificación de conectividad.
+* **Opcional (Bola extra)**: Enfoque *meet in the middle* (`man_in_the_middle.py`) para optimizar la búsqueda.
+* **Resultados**:
+  - Se muestra el número total de recorridos válidos.
+  - Se calcula el tiempo de ejecución en milisegundos.
+  
 ---
 
 ## 📌 3. Organización de archivos
-### 📂 `practica3_950123_950134/`
-El directorio contiene:
-- **📜 `README.md`** → Explicación del proyecto (este archivo).
-- **📜 `seam_carving.py`** → Script principal que implementa el algoritmo de reducción de costuras.
-- **📜 `ejecutar.sh`** → Automatización de la ejecución del programa.
-- **📂 `experimentacion`** → Imágenes de prueba para evaluar el algoritmo.
+
+El directorio contiene los siguientes archivos:
+
+- **📜 `retroceso.py`**  
+  Script principal que implementa la búsqueda con retroceso para calcular los recorridos válidos.
+- **📜 `man_in_the_middle.py`**  
+  Versión opcional con la técnica *meet in the middle* para la bola extra (optimización).
+- **📜 `test.txt`**  
+  Fichero de entrada que contiene los casos de prueba (dimensiones de la cuadrícula y puntos de control).
+- **📜 `results.txt`**  
+  Archivo de salida con el número de recorridos y el tiempo de ejecución para cada caso de `test.txt`.
+- **📜 `results_man_in_the_middle.txt`**  
+  Archivo de salida para la versión *meet in the middle* (bola extra).
+- **📜 `ejecutar.sh`**  
+  Script de automatización para compilar/ejecutar (si es necesario).
+- **📜 `LICENSE`**  
+  Archivo de licencia del proyecto.
+- **📜 `README.md`**  
+  Este archivo, con la descripción del proyecto y las instrucciones de uso.
 
 ---
 
 ## 📌 4. Instrucciones de uso
 
-### Grant Execution Rights and Prepare the Environment
-
-First, make the `ejecutar.sh` script executable and run it to set up the environment:
-
-```sh
-chmod +x ejecutar.sh
-./ejecutar.sh
-```
-
-## 📌 5. Ejecutar las pruebas
-
-Para probar la ejecución del algoritmo de reducción de costuras con una imagen de prueba, asegúrese de haber preparado el entorno siguiendo las instrucciones de la sección 4. Luego, ejecute el siguiente comando desde el directorio raíz del proyecto:
-
-```sh
-./seam_carving.py 50 experimentacion/elefante.jpg ./
+1. **Dar permisos de ejecución** :
+   ```sh
+   chmod +x ejecutar.sh
