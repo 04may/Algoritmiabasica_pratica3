@@ -16,15 +16,6 @@ if ! command -v pip3 >/dev/null 2>&1; then
     exit 1
 fi
 
-# Crear el entorno virtual si no existe
-if [ ! -d "venv" ]; then
-    echo "Creando entorno virtual..."
-    python3 -m venv venv
-fi
-
-# Activar el entorno virtual
-source venv/bin/activate
-
 # Actualizar pip a la última versión
 echo "Actualizando pip..."
 pip install --upgrade pip
