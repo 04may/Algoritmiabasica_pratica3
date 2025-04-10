@@ -34,7 +34,7 @@ El directorio contiene los siguientes archivos:
 - **📜 `results.txt`**  
   Archivo de salida con el número de recorridos y el tiempo de ejecución para cada caso de `test.txt`.
 - **📜 `results_man_in_the_middle.txt`**  
-  Archivo de salida para la versión *meet in the middle* (bola extra).
+  Archivo de salida para la versión *meet in the middle*.
 - **📜 `ejecutar.sh`**  
   Script de automatización para compilar/ejecutar (si es necesario).
 - **📜 `README.md`**  
@@ -47,3 +47,17 @@ El directorio contiene los siguientes archivos:
 1. **Dar permisos de ejecución** :
    ```sh
    chmod +x ejecutar.sh
+    ./ejecutar.sh
+
+2. **Ejecutar el algoritmo de búsqueda** : 
+Para correr el programa principal (backtracking) y procesar los casos de prueba definidos en test.txt, ejecute:
+   ```sh
+   python retroceso.py
+
+3. **Ejecutar la versión meet in the middle (Bola extra)**
+Para probar la variante con la estrategia meet in the middle y procesar los casos de prueba definidos en test.txt,, ejecute:
+   ```sh
+   python man_in_the_middle.py
+
+
+
