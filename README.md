@@ -37,8 +37,6 @@ El directorio contiene los siguientes archivos:
   Archivo de salida para la versión *meet in the middle* (bola extra).
 - **📜 `ejecutar.sh`**  
   Script de automatización para compilar/ejecutar (si es necesario).
-- **📜 `LICENSE`**  
-  Archivo de licencia del proyecto.
 - **📜 `README.md`**  
   Este archivo, con la descripción del proyecto y las instrucciones de uso.
 
